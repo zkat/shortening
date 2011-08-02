@@ -13,3 +13,6 @@ $ clisp
 > (ext:saveinitmem "shortening" :quiet t :init-function #'shortening:init :norc t :executable t)
 
 You should then be able to run shortening.
+
+Shortening is public domain software. I, the author, revoke any and all copyright I may have over
+the code in this repository. Do whatever you want with it. I won't complain if you credit me.
