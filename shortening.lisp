@@ -7,6 +7,7 @@
 (defparameter *port* 8181)
 (defparameter *max-db-size* 100)
 (defparameter *url-length* 6)
+(defvar *external-db* nil)
 
 (defparameter *config-locations* (list #p"/etc/shortening.conf"
                                      (merge-pathnames ".shortening.conf" (user-homedir-pathname))))
@@ -17,12 +18,14 @@
                           (format *error-output*
                                   "~&Error while loading config file ~A. Using defaults.~%"
                                   config-path)))))
-    (flet ((conf (id &aux (symbol (intern (format nil "*~:(~A~)*" id)))
+    (flet ((conf (id &optional (value-processor #'parse-integer)
+                     &aux (symbol (intern (format nil "*~:@(~A~)*" id)))
                     (name (string-upcase (string id))))
              (setf (symbol-value symbol)
-                   (or (ignore-errors (parse-integer (get-option config "shortening" name)))
+                   (or (ignore-errors (funcall value-processor (get-option config "shortening" name)))
                        (when (boundp symbol) (symbol-value symbol))))))
-      (mapcar #'conf '(port max-db-size url-length)))
+      (mapcar #'conf '(port max-db-size url-length))
+      (conf 'external-db #'pathname))
     t))
 
 ;; Util
@@ -37,6 +40,12 @@
 (defstruct (url (:constructor make-url (expansion &optional origin))
                 (:type list))
   expansion origin)
+
+(defun init-db ()
+  (setf *url-db* (with-open-file (fd *external-db*
+                                     :if-does-not-exist nil)
+                   (when fd
+                     (let (*read-eval*) (read fd nil))))))
 
 (defun find-url (short-url)
   (cdr (assoc short-url *url-db* :test #'string=)))
@@ -56,6 +65,11 @@
     (push (cons short (make-url long-url origin))
           *url-db*)
     (truncate-db)
+    (when *external-db*
+      (with-open-file (fd *external-db*
+                          :direction :output
+                          :if-exists :supersede)
+        (prin1 *url-db* fd)))
     short))
 
 ;; server
@@ -100,6 +114,7 @@
 (defun init ()
   (exit-on-error
    (load-config)
+   (init-db)
    (push (lambda (*request*)
            (unless (string= (script-name*) "/api")
              (when-let (target (find-url (script-name*)))
