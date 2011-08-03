@@ -57,24 +57,9 @@
     short))
 
 ;; server
-(defvar *acceptor* nil)
-(defun init ()
-  (ensure-config)
-  (load-config)
-  (when *acceptor*
-    (stop *acceptor*)
-    (setf *acceptor* nil))
-  (setf *dispatch-table* (list (lambda (*request*)
-                                 (unless (string= (script-name*) "/api")
-                                   (when-let (target (find-url (script-name*)))
-                                     (redirect target))))
-                               'dispatch-easy-handlers
-                               'default-dispatcher)
-        *acceptor* (make-instance
-                    'acceptor
-                    :port *port*
-                    :taskmaster (make-instance 'single-threaded-taskmaster)))
-  (start *acceptor*))
+(defun 404-handler ()
+  (setf (return-code*) +http-not-found+)
+  "Page not found")
 
 (define-easy-handler (home :uri "/") ((plainp :parameter-type 'boolean))
   (if plainp
@@ -90,3 +75,20 @@
 (define-easy-handler (api :uri "/api") (url)
   (setf (content-type*) "text/plain")
   (when url (add-url url)))
+
+(defun init ()
+  (handler-case
+      (progn
+       (ensure-config)
+       (load-config)
+       (push (lambda (*request*)
+               (unless (string= (script-name*) "/api")
+                 (when-let (target (find-url (script-name*)))
+                   (redirect target))))
+             *dispatch-table*)
+       (setf *default-handler* '404-handler)
+       (pushnew +http-not-found+ *approved-return-codes*)
+       (start (make-instance 'acceptor :port *port*
+                             :taskmaster (make-instance 'single-threaded-taskmaster))))
+    (error (e)
+      (princ e))))
