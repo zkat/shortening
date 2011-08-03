@@ -19,7 +19,8 @@
                                   "~&Error while loading config file ~A. Using defaults.~%"
                                   config-path)))))
     (flet ((conf (id &optional (value-processor #'parse-integer)
-                     &aux (symbol (intern (format nil "*~:@(~A~)*" id)))
+                     &aux (symbol (intern (format nil "*~:@(~A~)*" id)
+                                          (find-package :shortening)))
                     (name (string-upcase (string id))))
              (setf (symbol-value symbol)
                    (or (ignore-errors (funcall value-processor (get-option config "shortening" name)))
