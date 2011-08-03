@@ -49,7 +49,8 @@
                        (let (*read-eval*) (read fd nil)))))))
 
 (defun find-url (short-url)
-  (cdr (assoc short-url *url-db* :test #'string=)))
+  (when-let (url (cdr (assoc short-url *url-db* :test #'string=)))
+    (url-expansion url)))
 
 (defun truncate-db ()
   (when (> (length *url-db*) *max-db-size*)
