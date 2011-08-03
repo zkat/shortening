@@ -1,5 +1,5 @@
 (cl:defpackage #:shortening
-  (:use #:cl #:alexandria #:hunchentoot #:py-configparser)
+  (:use #:cl #:alexandria #:hunchentoot #:py-configparser #:yaclml)
   (:export :init :*port* :*max-db-size*))
 (cl:in-package #:shortening)
 
@@ -78,6 +78,17 @@
                     :port *port*
                     :taskmaster (make-instance 'single-threaded-taskmaster)))
   (start *acceptor*))
+
+(define-easy-handler (home :uri "/") ((plainp :parameter-type 'boolean))
+  (if plainp
+      (prin1 *url-db*)
+      (with-yaclml-output-to-string
+        (<:html :prologue "<!DOCTYPE html>"
+                (<:body
+                 (<:h1 "Links")
+                 (<:ul
+                  (loop for (short . long) in *url-db*
+                     do (<:li (<:p (<:ah short) (<:href long))))))))))
 
 (define-easy-handler (api :uri "/api") (url)
   (setf (content-type*) "text/plain")
