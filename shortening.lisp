@@ -36,6 +36,10 @@
 
 ;; DB
 (defvar *url-db* nil)
+(defstruct (url (:constructor make-url (expansion &optional origin))
+                (:type list))
+  expansion origin)
+
 (defun find-url (short-url)
   (cdr (assoc short-url *url-db* :test #'string=)))
 
@@ -49,9 +53,9 @@
         (unique-url)
         url)))
 
-(defun add-url (long-url)
+(defun add-url (long-url &optional origin)
   (let ((short (unique-url)))
-    (push (cons short long-url)
+    (push (cons short (make-url long-url origin))
           *url-db*)
     (truncate-db)
     short))
@@ -69,12 +73,15 @@
                 (<:body
                  (<:h1 "Links")
                  (<:ul
-                  (loop for (short . long) in *url-db*
-                     do (<:li (<:p (<:ah short) " - " (<:href long (<:ah long)))))))))))
+                  (loop for (short . url) in *url-db*
+                     do (<:li (<:p (<:ah short) " - " (<:href (url-expansion url)
+                                                              (<:ah (url-expansion url)))
+                                   (when-let (origin (url-origin url))
+                                     (<:ah " (origin: " origin ")")))))))))))
 
-(define-easy-handler (api :uri "/api") (url)
+(define-easy-handler (api :uri "/api") (url origin)
   (setf (content-type*) "text/plain")
-  (when url (add-url url)))
+  (when url (add-url url origin)))
 
 (defmacro exit-on-error (&body body)
   `(#+sbcl progn #+sbcl (setf sb-ext:*invoke-debugger-hook*
