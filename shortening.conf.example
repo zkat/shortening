@@ -1,0 +1,7 @@
+[shortening]
+port = 8181
+max-db-size = 100
+url-length = 6
+# Uncomment to persist the URL database.
+# external-db = ~/.shortening.db
+
