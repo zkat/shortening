@@ -5,29 +5,26 @@
 
 ;; Config
 (defparameter *port* 8181)
-(defparameter *max-db-size* 50)
+(defparameter *max-db-size* 100)
+(defparameter *url-length* 6)
 
 (defun load-config ()
   (when-let* ((config-path (probe-file (merge-pathnames ".shortening.conf" (user-homedir-pathname))))
               (config (handler-case (read-files (make-config) (list config-path))
                         (configparser-error () nil))))
-    (when-let (port (ignore-errors
-                      (parse-integer
-                       (get-option config "conf" "port"))))
-      (setf *port* port))
-    (when-let (max-db-size (ignore-errors
-                             (parse-integer
-                              (get-option config "conf" "max-db-size"))))
-      (setf *max-db-size* max-db-size))
+    (flet ((conf (name)
+             (ignore-errors (parse-integer (get-option config "conf" name)))))
+      (setf *port* (or (conf "port") *port*)
+            *max-db-size* (or (conf "max-db-size") *max-db-size*)
+            *url-length* (or (conf "url-length") *url-length*)))
     t))
 
 (defun ensure-config ()
   (let ((path (merge-pathnames ".shortening.conf" (user-homedir-pathname))))
     (unless (probe-file path)
       (with-open-file (fd path :direction :output :if-exists :supersede)
-        (with-input-from-string (s (format nil "[default]~%port = ~A~%max-db-size = ~A~%"
-                                           *port* *max-db-size*))
-          (copy-stream s fd)))
+        (format fd "[default]~%port = ~A~%max-db-size = ~A~%url-length = ~A"
+                *port* *max-db-size* *url-length*))
       t)))
 
 ;; Util
@@ -47,8 +44,8 @@
     (setf *url-db* (subseq *url-db* 0 (1- (length *url-db*))))))
 
 (defun unique-url ()
-  (let ((url (concatenate 'string "/" (random-string))))
-    (if (find-url url)
+  (let ((url (concatenate 'string "/" (random-string *url-length*))))
+    (if (or (find-url url) (string= url "/api"))
         (unique-url)
         url)))
 
