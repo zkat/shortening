@@ -83,6 +83,8 @@ your machines.
 * *WARNING* There is no authorization built into shortening. If you expose the port to the internet,
    *you may be at risk of being used by spammers.*
 * Killing the program with Control+c does not currently work in Clozure CL.
+* If you run this on localhost, you can have some fun with your hosts file. I added 'lch' as a local
+  hostname, so I can access shortening using <http://lch:8181/ShRTuRL>.
 
 # License
 
