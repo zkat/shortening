@@ -1,6 +1,6 @@
 (cl:defpackage #:shortening
   (:use #:cl #:alexandria #:hunchentoot #:py-configparser #:yaclml)
-  (:export :init :*port* :*max-db-size*))
+  (:export :init))
 (cl:in-package #:shortening)
 
 ;; Config
