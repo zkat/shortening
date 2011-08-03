@@ -8,9 +8,10 @@ to send to an external server with guessable URLs.
 # Configuration
 
 shortening will first look in `~/.shortening.conf`, and then in `/etc/shortening.conf` for existing
-configuration files.
+configuration files. There is an example configuration file in the source directory, named
+`shortening.conf.example`.
 
-This is the entirety of the current configuration file, with default values:
+Here is the entirety of the default configuration file:
 
     [shortening]
     port = 8181 # Port to start the web server in.
@@ -18,9 +19,8 @@ This is the entirety of the current configuration file, with default values:
     url-length = 6 # Length of the randomly-generated short URLs.
     external-db = # See below
 
-* external-db is blank by default.
-* If external-db is blank, URLs are kept in-memory, and will not be persisted to disk. This means
-  all URLs will be lost when the shortening process shuts down.
+* If external-db is blank (or there is no config file), URLs are kept in-memory, and will not be
+  persisted to disk. This means all URLs will be lost when the shortening process shuts down.
 * external-db accepts absolute (/foo/bar), relative (foo/bar/), and ~/-expanded (~/.shortening.db)
   pathnames.
 * ~username/ pathnames are not accepted.
