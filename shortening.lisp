@@ -69,6 +69,12 @@
       (with-yaclml-output-to-string
         (<:html :prologue "<!DOCTYPE html>"
                 (<:body
+                 (<:h1 "Submit a URL")
+                 (<:form :method :post :action "/api"
+                         (<:label :for "url" "URL: ")
+                         (<:input :id "url" :name "url")
+                         (<:input :type "hidden" :name "origin" :value "web-form")
+                         (<:submit :value "shorten!"))
                  (<:h1 "Links")
                  (<:ul
                   (loop for (short . url) in *url-db*
