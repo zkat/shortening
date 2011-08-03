@@ -47,8 +47,7 @@
     (setf *url-db* (with-open-file (fd *external-db*
                                        :if-does-not-exist nil)
                      (when fd
-                       (let (*read-eval*) (read fd nil)))))
-    (format t "~&URL Database loaded from ~A.~%" *external-db*)))
+                       (let (*read-eval*) (read fd nil)))))))
 
 (defun find-url (short-url)
   (cdr (assoc short-url *url-db* :test #'string=)))
@@ -69,7 +68,7 @@
           *url-db*)
     (truncate-db)
     (when *external-db*
-      (with-open-file (fd *external-db*
+      (with-open-file (fd (ensure-directories-exist *external-db*)
                           :direction :output
                           :if-exists :supersede)
         (prin1 *url-db* fd)))
