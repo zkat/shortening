@@ -7,7 +7,7 @@ to send to an external server with guessable URLs.
 
 # Configuration
 
-shortening will first look in `/etc/shortening.conf`, and then in `~/.shortening.conf` for existing
+shortening will first look in `~/.shortening.conf`, and then in `/etc/shortening.conf` for existing
 configuration files.
 
 This is the entirety of the current configuration file, with default values:
