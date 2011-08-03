@@ -70,7 +70,7 @@
                  (<:h1 "Links")
                  (<:ul
                   (loop for (short . long) in *url-db*
-                     do (<:li (<:p (<:ah short) (<:href long))))))))))
+                     do (<:li (<:p (<:ah short) " - " (<:href long (<:ah long)))))))))))
 
 (define-easy-handler (api :uri "/api") (url)
   (setf (content-type*) "text/plain")
