@@ -16,6 +16,14 @@ This is the entirety of the current configuration file, with default values:
     port = 8181 # Port to start the web server in.
     max-db-size = 100 # Maximum number of URLs to keep around at a time.
     url-length = 6 # Length of the randomly-generated short URLs.
+    external-db = # See below
+
+* external-db is blank by default.
+* If external-db is blank, URLs are kept in-memory, and will not be persisted to disk. This means
+  all URLs will be lost when the shortening process shuts down.
+* external-db accepts absolute (/foo/bar), relative (foo/bar/), and ~/-expanded (~/.shortening.db)
+  pathnames.
+* ~username/ pathnames are not accepted.
 
 # Usage
 
@@ -75,8 +83,6 @@ your machines.
 * *WARNING* There is no authorization built into shortening. If you expose the port to the internet,
    *you may be at risk of being used by spammers.*
 * Killing the program with Control+c does not currently work in Clozure CL.
-* The URL database is kept in-memory. That means that if the shortening process is shut down, the
-  URL database will be wiped out.
 
 # License
 
