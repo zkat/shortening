@@ -43,10 +43,12 @@
   expansion origin)
 
 (defun init-db ()
-  (setf *url-db* (with-open-file (fd *external-db*
-                                     :if-does-not-exist nil)
-                   (when fd
-                     (let (*read-eval*) (read fd nil))))))
+  (when (probe-file *external-db*)
+    (setf *url-db* (with-open-file (fd *external-db*
+                                       :if-does-not-exist nil)
+                     (when fd
+                       (let (*read-eval*) (read fd nil)))))
+    (format t "~&URL Database loaded from ~A.~%" *external-db*)))
 
 (defun find-url (short-url)
   (cdr (assoc short-url *url-db* :test #'string=)))
