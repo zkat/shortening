@@ -115,14 +115,14 @@
 
 (defun init ()
   (exit-on-error
-   (load-config)
-   (init-db)
-   (push (lambda (*request*)
-           (unless (string= (script-name*) "/api")
-             (when-let (target (find-url (script-name*)))
-               (redirect target))))
-         *dispatch-table*)
-   (setf *default-handler* '404-handler)
-   (pushnew +http-not-found+ *approved-return-codes*)
-   (start (make-instance 'acceptor :port *port*
-                         :taskmaster (make-instance 'single-threaded-taskmaster)))))
+    (load-config)
+    (init-db)
+    (push (lambda (*request*)
+            (unless (string= (script-name*) "/api")
+              (when-let (target (find-url (script-name*)))
+                (redirect target))))
+          *dispatch-table*)
+    (setf *default-handler* '404-handler)
+    (pushnew +http-not-found+ *approved-return-codes*)
+    (start (make-instance 'acceptor :port *port*
+                          :taskmaster (make-instance 'single-threaded-taskmaster)))))
