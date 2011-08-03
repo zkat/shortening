@@ -33,8 +33,7 @@
 (defparameter *random-alphabet* "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 (defun random-string (&optional (length 6))
   (map-into (make-array length :element-type 'character)
-            (lambda ()
-              (elt *random-alphabet* (random (length *random-alphabet*))))))
+            (curry #'random-elt *random-alphabet*)))
 
 ;; DB
 (defvar *url-db* nil)
