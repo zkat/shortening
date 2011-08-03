@@ -25,7 +25,7 @@
                    (or (ignore-errors (funcall value-processor (get-option config "shortening" name)))
                        (when (boundp symbol) (symbol-value symbol))))))
       (mapcar #'conf '(port max-db-size url-length))
-      (conf 'external-db #'pathname))
+      (conf 'external-db (conjoin (compose #'not #'emptyp) #'pathname)))
     t))
 
 ;; Util
