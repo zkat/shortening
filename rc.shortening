@@ -1,0 +1,32 @@
+#!/bin/bash
+
+. /etc/rc.conf
+. /etc/rc.d/functions
+
+case "$1" in
+  start)
+    stat_busy "Starting shortening"
+    /usr/bin/shortening &> /dev/null
+    if [ $? -gt 0 ]; then
+      stat_fail
+    else
+      add_daemon shortening
+      stat_done
+    fi
+    ;;
+  stop)
+    stat_busy "Stopping shortening"
+    kill -9 `pidof /usr/bin/shortening` &>/dev/null
+    rm_daemon shortening
+    stat_done
+    ;;
+  restart)
+    stat_busy "Restarting shortening"
+    $0 stop
+    $0 start
+    stat_done
+    ;;
+  *)
+    echo "usage: $0 {start|stop|restart}"
+esac
+exit 0
