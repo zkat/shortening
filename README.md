@@ -1,18 +1,85 @@
-This is a short and sweet url shortener meant to be run locally.
+# About
 
-The config file is .shortening.conf. It's pretty self-explanatory and will appear after the first
-run of the program.
+This is a short and sweet url shortener meant for personal use. It's a handy utility for those who
+want short urls but cannot or do not want to use public URL shorteners. I, for example, use it with
+a weechat plugin, since people might send me private, sensitive URLs that it may not be appropriate
+to send to an external server with guessable URLs.
 
-shortening exposes a REST API, where http://host:port/api?url=http://www.google.com/ will return a
-simple string, prefixed by a /. Appending this string to http://host:port and visiting the URL will
-result in a redirect to the 'long' version of the URL.
+# Configuration
+
+shortening will first look in /etc/shortening.conf, and then in ~/.shortening.conf for existing
+configuration files.
+
+This is the entirety of the current configuration file, with default values:
+
+    [shortening]
+    port = 8181 # Port to start the web server in.
+    max-db-size = 100 # Maximum number of URLs to keep around at a time.
+    url-length = 6 # Length of the randomly-generated short URLs.
+
+# Usage
+
+You may start shortening simply by invoking its binary. It has no command-line arguments.
+
+shortening uses a REST API for its shortening service:
+
+*http://host/api* `url origin`
+
+  Adds a URL to the database. The ORIGIN parameter is optional. The response will be a string,
+  prefixed by /. Making a request `http://host` + this string will redirect the client to the URL
+  parameter.
+
+*http://host/* `plainp`
+
+  Requesting the root document will display a list of all links currently in the database, listed by
+  short-url, long-url, and origin (if any). The HTML version also provides a simple form where you
+  can submit your own URLs without using the API.
+
+  If PLAINP is submitted with any value, shortener will respond with a plain-text version of the
+  current URL database, in the following format: ("<short-url>" "<long-url>" <origin>), where <origin>
+  will either be a string wrapped in double-quotes, or NIL.
+
+# Building
+
+Shortening is Common Lisp software. In order to build it, you will first have to install one of the
+supported Lisp implementations:
+
+ * CLISP <http://www.clisp.org/>
+ * SBCL <http://www.sbcl.org/>
+ * Clozure CL <http://www.clozure.com/clozurecl.html>
+
+You will also need to have Quicklisp installed in order to pull in shortening's dependencies. You
+can get quicklisp here: http://www.quicklisp.org/beta/
 
 Here are the steps to build a clisp-based binary:
-$ clisp
-> (ql:quickload 'shortening)
-> (ext:saveinitmem "shortening" :quiet t :init-function #'shortening:init :norc t :executable t)
 
-You should then be able to run shortening.
+    $ cd /path/to/shortening/
+    $ clisp
+    > (load "/path/to/quicklisp/setup.lisp") ; Optional if quicklisp is auto-loaded.
+    > (load "make")
+
+You can then execute the 'shortening' binary.
+
+# Using shortening remotely
+
+Shortening is designed to be used locally. As such, it has no authorization built in. If you want to
+be able to access URLs hosted by shortening remotely, you must arrange to make the proper ports
+available to yourself. *It is highly recommended you do not simply open the ports up to the
+internet*.
+
+Instead, consider an alternative such as ssh tunneling to make the same URLs accessible from any of
+your machines.
+
+# Notes/known issues/warnings
+
+* *WARNING* There is no authorization built into shortening. If you expose the port to the internet,
+   *you may be at risk of being used by spammers.*
+* Killing the program with Control+c does not currently work in Clozure CL.
+
+# License
 
 Shortening is public domain software. I, the author, revoke any and all copyright I may have over
 the code in this repository. Do whatever you want with it. I won't complain if you credit me.
+
+If you live in an oppressive country that makes release into the public domain illegal, you may use
+the license in the OPPRESSED file included with the shortening sources for legal comfort.
