@@ -76,19 +76,23 @@
   (setf (content-type*) "text/plain")
   (when url (add-url url)))
 
+(defmacro exit-on-error (&body body)
+  `(#+sbcl progn #+sbcl (setf sb-ext:*invoke-debugger-hook*
+                              (lambda (&rest foo) (declare (ignore foo)) (sb-ext:quit)))
+    #+clisp ext:exit-on-error
+    #-(or sbcl clisp) progn
+    ,@body))
+
 (defun init ()
-  (handler-case
-      (progn
-       (ensure-config)
-       (load-config)
-       (push (lambda (*request*)
-               (unless (string= (script-name*) "/api")
-                 (when-let (target (find-url (script-name*)))
-                   (redirect target))))
-             *dispatch-table*)
-       (setf *default-handler* '404-handler)
-       (pushnew +http-not-found+ *approved-return-codes*)
-       (start (make-instance 'acceptor :port *port*
-                             :taskmaster (make-instance 'single-threaded-taskmaster))))
-    (error (e)
-      (princ e))))
+  (exit-on-error
+   (ensure-config)
+   (load-config)
+   (push (lambda (*request*)
+           (unless (string= (script-name*) "/api")
+             (when-let (target (find-url (script-name*)))
+               (redirect target))))
+         *dispatch-table*)
+   (setf *default-handler* '404-handler)
+   (pushnew +http-not-found+ *approved-return-codes*)
+   (start (make-instance 'acceptor :port *port*
+                         :taskmaster (make-instance 'single-threaded-taskmaster)))))
