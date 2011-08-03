@@ -8,24 +8,22 @@
 (defparameter *max-db-size* 100)
 (defparameter *url-length* 6)
 
+(defparameter *config-locations* (list #p"/etc/shortening.conf"
+                                     (merge-pathnames ".shortening.conf" (user-homedir-pathname))))
 (defun load-config ()
-  (when-let* ((config-path (probe-file (merge-pathnames ".shortening.conf" (user-homedir-pathname))))
+  (when-let* ((config-path (find-if #'probe-file *config-locations*))
               (config (handler-case (read-files (make-config) (list config-path))
-                        (configparser-error () nil))))
-    (flet ((conf (name)
-             (ignore-errors (parse-integer (get-option config "conf" name)))))
-      (setf *port* (or (conf "port") *port*)
-            *max-db-size* (or (conf "max-db-size") *max-db-size*)
-            *url-length* (or (conf "url-length") *url-length*)))
+                        (configparser-error ()
+                          (format *error-output*
+                                  "~&Error while loading config file ~A. Using defaults.~%"
+                                  config-path)))))
+    (flet ((conf (id &aux (symbol (intern (format nil "*~:(~A~)*" id)))
+                    (name (string-upcase (string id))))
+             (setf (symbol-value symbol)
+                   (or (ignore-errors (parse-integer (get-option config "shortening" name)))
+                       (when (boundp symbol) (symbol-value symbol))))))
+      (mapcar #'conf '(port max-db-size url-length)))
     t))
-
-(defun ensure-config ()
-  (let ((path (merge-pathnames ".shortening.conf" (user-homedir-pathname))))
-    (unless (probe-file path)
-      (with-open-file (fd path :direction :output :if-exists :supersede)
-        (format fd "[default]~%port = ~A~%max-db-size = ~A~%url-length = ~A"
-                *port* *max-db-size* *url-length*))
-      t)))
 
 ;; Util
 (defparameter *random-alphabet* "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
@@ -95,7 +93,6 @@
 
 (defun init ()
   (exit-on-error
-   (ensure-config)
    (load-config)
    (push (lambda (*request*)
            (unless (string= (script-name*) "/api")
