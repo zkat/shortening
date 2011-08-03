@@ -7,7 +7,7 @@ to send to an external server with guessable URLs.
 
 # Configuration
 
-shortening will first look in /etc/shortening.conf, and then in ~/.shortening.conf for existing
+shortening will first look in `/etc/shortening.conf`, and then in `~/.shortening.conf` for existing
 configuration files.
 
 This is the entirety of the current configuration file, with default values:
@@ -36,8 +36,8 @@ shortening uses a REST API for its shortening service:
   can submit your own URLs without using the API.
 
   If PLAINP is submitted with any value, shortener will respond with a plain-text version of the
-  current URL database, in the following format: ("<short-url>" "<long-url>" <origin>), where <origin>
-  will either be a string wrapped in double-quotes, or NIL.
+  current URL database, in the following format: `("<short-url>" "<long-url>" <origin>)`, where
+  `<origin>` will either be a string wrapped in double-quotes, or `NIL`.
 
 # Building
 
@@ -75,6 +75,8 @@ your machines.
 * *WARNING* There is no authorization built into shortening. If you expose the port to the internet,
    *you may be at risk of being used by spammers.*
 * Killing the program with Control+c does not currently work in Clozure CL.
+* The URL database is kept in-memory. That means that if the shortening process is shut down, the
+  URL database will be wiped out.
 
 # License
 
