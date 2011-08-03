@@ -85,7 +85,10 @@
 
 (defmacro exit-on-error (&body body)
   `(#+sbcl progn #+sbcl (setf sb-ext:*invoke-debugger-hook*
-                              (lambda (&rest foo) (declare (ignore foo)) (sb-ext:quit)))
+                              (lambda (c prev)
+                                (declare (ignore prev))
+                                (format *error-output* "~&~A~%" c)
+                                (sb-ext:quit)))
     #+clisp ext:exit-on-error
     #-(or sbcl clisp) progn
     ,@body))
