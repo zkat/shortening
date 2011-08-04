@@ -45,7 +45,7 @@
   expansion origin)
 
 (defun init-db ()
-  (when (probe-file *external-db*)
+  (when (and *external-db* (probe-file *external-db*))
     (setf *url-db* (with-open-file (fd *external-db*
                                        :if-does-not-exist nil)
                      (when fd
