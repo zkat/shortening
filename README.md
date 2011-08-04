@@ -86,8 +86,6 @@ your machines.
 * If you run this on localhost, you can have some fun with your hosts file. I added 'lch' as a local
   hostname, so I can access shortening using <http://lch:8181/ShRTuRL>.
 * There's an rc.shortening script that can be used with Arch Linux to daemonize the shortener.
-* If you run it as a daemon, but start it as a user with a ~/.shortening.conf file, that file will
-  be used as the configuration, instead of /etc/shortening.conf.
 
 # License
 

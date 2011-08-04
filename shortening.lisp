@@ -9,10 +9,13 @@
 (defparameter *url-length* 6)
 (defvar *external-db* nil)
 
-(defparameter *config-locations* (list (merge-pathnames ".shortening.conf" (user-homedir-pathname))
-                                       #P"/etc/shortening.conf"))
+(defun config-location ()
+  (find-if #'probe-file
+           (list (merge-pathnames ".shortening.conf" (user-homedir-pathname))
+                 #P"/etc/shortening.conf")))
+
 (defun load-config ()
-  (when-let* ((config-path (find-if #'probe-file *config-locations*))
+  (when-let* ((config-path (config-location))
               (config (handler-case (read-files (make-config) (list config-path))
                         (configparser-error ()
                           (format *error-output*
