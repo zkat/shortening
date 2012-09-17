@@ -6,7 +6,7 @@
 case "$1" in
   start)
     stat_busy "Starting shortening"
-    /usr/bin/shortening & &> /dev/null
+    /usr/bin/shortening &> /dev/null &
     if [ $? -gt 0 ]; then
       stat_fail
     else
