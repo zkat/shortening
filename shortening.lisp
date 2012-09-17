@@ -78,10 +78,6 @@
     short))
 
 ;; server
-(defun 404-handler ()
-  (setf (return-code*) +http-not-found+)
-  "Page not found")
-
 (define-easy-handler (home :uri "/") ((plainp :parameter-type 'boolean))
   (if plainp
       (prin1 *url-db*)
@@ -125,7 +121,5 @@
               (when-let (target (find-url (script-name*)))
                 (redirect target))))
           *dispatch-table*)
-    (setf *default-handler* '404-handler)
-    (pushnew +http-not-found+ *approved-return-codes*)
-    (start (make-instance 'acceptor :port *port*
+    (start (make-instance 'easy-acceptor :port *port*
                           :taskmaster (make-instance 'single-threaded-taskmaster)))))
