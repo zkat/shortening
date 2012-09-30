@@ -1,0 +1,13 @@
+[Unit]
+Description=Shortening URL Shortener
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/shortening
+User=shortening
+Group=shortening
+StandardOutput=syslog
+
+[Install]
+WantedBy=multi-user.target
